@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+<head>
+  <meta name="generator" content="Hexo 6.3.0">
+  <meta charset="utf-8">
+  
+
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  <link rel='dns-prefetch' href='https://fastly.jsdelivr.net'>
+  <link rel="preconnect" href="https://fastly.jsdelivr.net" crossorigin>
+  <link rel='dns-prefetch' href='//unpkg.com'>
+
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  <title>Spring boot中优雅的实现字典管理 - 立青同学啊</title>
+
+  
+    <meta name="description" content="利用字典可以统一管理系统中的散落的状态，增强系统的整体性与逻辑性。在开发之前我先参考了网上些许资料，其中主要参考这篇文章：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_40065776&#x2F;article&#x2F;details&#x2F;107403576这篇文章是采取AOP方式对响应信息进行处理，在响应体内增加一个 “变量名” + “Text” 格式的字段来对字典进行解释。个人认为这种方式有一定缺点，其一是代">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring boot中优雅的实现字典管理">
+<meta property="og:url" content="https://ctrlandz.github.io/2021/12/15/Spring-boot%E4%B8%AD%E4%BC%98%E9%9B%85%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%AD%97%E5%85%B8%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:site_name" content="立青同学啊">
+<meta property="og:description" content="利用字典可以统一管理系统中的散落的状态，增强系统的整体性与逻辑性。在开发之前我先参考了网上些许资料，其中主要参考这篇文章：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_40065776&#x2F;article&#x2F;details&#x2F;107403576这篇文章是采取AOP方式对响应信息进行处理，在响应体内增加一个 “变量名” + “Text” 格式的字段来对字典进行解释。个人认为这种方式有一定缺点，其一是代">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/22275721-f1403fa32ab18d1d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="article:published_time" content="2021-12-15T10:35:20.000Z">
+<meta property="article:modified_time" content="2022-09-14T07:36:30.957Z">
+<meta property="article:author" content="liujing">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/22275721-f1403fa32ab18d1d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+
+
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='post'>
+    
+
+
+<header class="header">
+
+<div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://fastly.jsdelivr.net/gh/cdn-x/placeholder@1.0.2/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="https://q.qlogo.cn/g?b=qq&nk=927552837&s=640" onerror="javascript:this.classList.add('error');this.src='https://fastly.jsdelivr.net/gh/cdn-x/placeholder@1.0.1/image/2659360.svg';"></a><a class="title" href="/"><div class="main">立青同学啊</div><div class="sub cap">硬盘 —— 能多刻几个字的石头</div></a></div>
+<nav class="menu dis-select"><a class="nav-item active" href="/">文章</a><a class="nav-item" href="/wiki/">项目</a><a class="nav-item" href="/notes/">笔记</a><a class="nav-item" href="/more/">更多</a></nav></header>
+
+<div class="widgets">
+
+<div class="widget-wrap single" id="toc"><div class="widget-header cap dis-select"><span class="name">本文目录</span></div><div class="widget-body fs14"><div class="doc-tree active"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%BB%BA%E8%A1%A8"><span class="toc-text">1.建表</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E8%A1%A8"><span class="toc-text">主表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%89%AF%E8%A1%A8"><span class="toc-text">副表</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%AD%97%E5%85%B8%E6%B3%A8%E8%A7%A3"><span class="toc-text">2.字典注解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%B5%8B%E8%AF%95%E5%AE%9E%E4%BD%93"><span class="toc-text">3.测试实体</span></a></li></ol></div></div></div>
+
+
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+
+      
+
+
+<div class="bread-nav fs12"><div id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div><div id="post-meta">发布于&nbsp;<time datetime="2021-12-15T10:35:20.000Z">2021-12-15</time></div></div>
+
+<article class='content md post'>
+<h1 class="article-title"><span>Spring boot中优雅的实现字典管理</span></h1>
+<blockquote>
+<p>利用字典可以统一管理系统中的散落的状态，增强系统的整体性与逻辑性。<br>在开发之前我先参考了网上些许资料，其中主要参考这篇文章：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_40065776/article/details/107403576">https://blog.csdn.net/qq_40065776/article/details/107403576</a><br>这篇文章是采取AOP方式对响应信息进行处理，在响应体内增加一个 “变量名” + “Text” 格式的字段来对字典进行解释。<br>个人认为这种方式有一定缺点，其一是代码繁琐了些，因为AOP处理部分的代码是新增的，所以会增加处理逻辑，对系统会增加一定的逻辑时长。<br>在该文章评论区一位叫“汤同学”的网友列出了使用自定义序列化的方式来进行处理，个人认为这种思路会更加优雅且相对逻辑时长较短。<br>只不过该同学提供的方式需要在字段上指定字典注解之外，还需要<code>@JsonSerialize(using = DicSerializer.class)</code>来指定字段序列化方式。<br>这篇文章是对“汤同学”方式的补充，可以不写序列化注解。</p>
+</blockquote>
+<h2 id="1-建表"><a href="#1-建表" class="headerlink" title="1.建表"></a>1.建表</h2><h4 id="主表"><a href="#主表" class="headerlink" title="主表"></a>主表</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE `dict` (</span><br><span class="line">  `id` int NOT NULL AUTO_INCREMENT COMMENT &#x27;主键id&#x27;,</span><br><span class="line">  `code` varchar(32) DEFAULT NULL COMMENT &#x27;编码&#x27;,</span><br><span class="line">  `name` varchar(32) DEFAULT NULL COMMENT &#x27;名称&#x27;,</span><br><span class="line">  `describe` varchar(64) DEFAULT NULL COMMENT &#x27;描述&#x27;,</span><br><span class="line">  `status` tinyint(1) NOT NULL DEFAULT &#x27;0&#x27; COMMENT &#x27;状态（0--正常1--冻结）&#x27;,</span><br><span class="line">  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,</span><br><span class="line">  `create_user` varchar(50) DEFAULT NULL COMMENT &#x27;创建人&#x27;,</span><br><span class="line">  `is_del` tinyint(1) DEFAULT &#x27;0&#x27; COMMENT &#x27;删除状态（0，正常，1已删除）&#x27;,</span><br><span class="line">) </span><br></pre></td></tr></table></figure>
+
+<h4 id="副表"><a href="#副表" class="headerlink" title="副表"></a>副表</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE `dict_detail` (</span><br><span class="line">  `id` INT NOT NULL AUTO_INCREMENT COMMENT &#x27;主键id&#x27;,</span><br><span class="line">  `dict_code` VARCHAR(32) DEFAULT NULL COMMENT &#x27;字典编码&#x27;,</span><br><span class="line">  `code` VARCHAR(32) DEFAULT NULL COMMENT &#x27;编码&#x27;,</span><br><span class="line">  `name` VARCHAR(32) DEFAULT NULL COMMENT &#x27;名称&#x27;,</span><br><span class="line">  `sort` TINYINT NOT NULL DEFAULT &#x27;0&#x27; COMMENT &#x27;排序&#x27;</span><br><span class="line">) </span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>生成实体部分就不重复赘述了，这里表索引和表之间的关系没有表明，自己看情况处理。</p>
+</blockquote>
+<h2 id="2-字典注解"><a href="#2-字典注解" class="headerlink" title="2.字典注解"></a>2.字典注解</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 数据字典注解</span><br><span class="line"> * @author liujing</span><br><span class="line"> */</span><br><span class="line">@Target(ElementType.FIELD)</span><br><span class="line">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="line">public @interface Dict &#123;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 字典code</span><br><span class="line">     */</span><br><span class="line">    String value();</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>实现自动的自定义序列化，也就是不需要在属性上指定序列化的方式</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 字典自定序列化类</span><br><span class="line"> */</span><br><span class="line">public class DictSerializer extends StdSerializer&lt;Object&gt; implements ContextualSerializer &#123;</span><br><span class="line"></span><br><span class="line">    private static final long serialVersionUID = -6157558261755426448L;</span><br><span class="line"></span><br><span class="line">    private String dictCode;</span><br><span class="line"></span><br><span class="line">    public DictSerializer() &#123;</span><br><span class="line">        super(Object.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public DictSerializer(String dictCode) &#123;</span><br><span class="line">        super(Object.class);</span><br><span class="line">        this.dictCode = dictCode;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public JsonSerializer&lt;?&gt; createContextual(SerializerProvider prov, BeanProperty property) &#123;</span><br><span class="line">        Dict annotation = property.getAnnotation(Dict.class);</span><br><span class="line">        return new DictSerializer(annotation.value());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @SneakyThrows</span><br><span class="line">    @Override</span><br><span class="line">    public void serialize(Object code, JsonGenerator gen, SerializerProvider provider) &#123;</span><br><span class="line">        /*</span><br><span class="line">        获取键值对，这里我处理成map的方式返回给前端</span><br><span class="line">        这部分要自己处理，我这里是通过一个业务类从redis中获取字典</span><br><span class="line">         */ </span><br><span class="line">        DictDetailService service = SpringUtil.getBean(DictDetailService.class);</span><br><span class="line">        DictDetail detail = service.get(this.dictCode, String.valueOf(code));</span><br><span class="line">        DictResp resp = new DictResp();</span><br><span class="line">        if (detail != null)&#123;</span><br><span class="line">            resp.setDictCode(detail.getDictCode());</span><br><span class="line">            resp.setCode(detail.getCode());</span><br><span class="line">            resp.setName(detail.getName());</span><br><span class="line">        &#125;</span><br><span class="line">        gen.writeObject(resp);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 字典注解序列化拦截器</span><br><span class="line"> */</span><br><span class="line">@Component</span><br><span class="line">public class DictSensitiveAnnotationIntrospector extends NopAnnotationIntrospector &#123;</span><br><span class="line"></span><br><span class="line">    private static final long serialVersionUID = 1L;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public Object findSerializer(Annotated am) &#123;</span><br><span class="line">        Dict dict = am.getAnnotation(Dict.class);</span><br><span class="line">        if (dict != null)&#123;</span><br><span class="line">            return DictSerializer.class;</span><br><span class="line">        &#125;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>下面部分代码就是增加@Dict注解属性的序列化方式</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 修改被@Dict注解标注的属性字典序列化方式</span><br><span class="line"> * @author liujing</span><br><span class="line"> */</span><br><span class="line">@Configuration</span><br><span class="line">public class DictSerializerConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Resource</span><br><span class="line">    private DictSensitiveAnnotationIntrospector dictSensitiveAnnotationIntrospector;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() &#123;</span><br><span class="line">        return builder -&gt; builder.annotationIntrospector(dictSensitiveAnnotationIntrospector);;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3-测试实体"><a href="#3-测试实体" class="headerlink" title="3.测试实体"></a>3.测试实体</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 管理员实体类</span><br><span class="line"> * @author liujing</span><br><span class="line"> * @since 2021-12-15</span><br><span class="line"> */</span><br><span class="line">@Data</span><br><span class="line">public class Admin implements Serializable &#123;</span><br><span class="line"></span><br><span class="line">    private static final long serialVersionUID = 1L;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 管理员编号</span><br><span class="line">     */</span><br><span class="line">    private Integer id;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 性别</span><br><span class="line">     */</span><br><span class="line">    @Dict(&quot;sys_gender&quot;)</span><br><span class="line">    private Integer gender;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>接口就不写了，直接显示结果，gender会被翻译成带描述信息的对象，当然也可以放更多信息，在于修改<code>DictSerializer</code>类中<code>serialize</code>方法的序列化结果对象内容。</p>
+</blockquote>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://upload-images.jianshu.io/upload_images/22275721-f1403fa32ab18d1d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+
+
+<div class="article-footer reveal fs14"><section id="license"><div class="header"><span>许可协议</span></div><div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div></section></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="header cap theme"><span>接下来阅读</span></section><section class="body fs14"><a id="next" href="/2020/07/10/%E5%9C%A8uniapp-H5%E9%A1%B9%E7%9B%AE%E4%B8%AD%E4%BD%BF%E7%94%A8%E8%85%BE%E8%AE%AF%E5%9C%B0%E5%9B%BEsdk/">在uniapp H5项目中使用腾讯地图sdk<span class="note">较早</span></a><div class="line"></div></section></div>
+
+
+
+
+
+
+  <div class='related-wrap md reveal' id="comments">
+    <div class='cmt-title cap theme'>
+      快来参与讨论吧
+    </div>
+    <div class='cmt-body beaudar'>
+      
+
+<svg class="loading" style="vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2709"><path d="M832 512c0-176-144-320-320-320V128c211.2 0 384 172.8 384 384h-64zM192 512c0 176 144 320 320 320v64C300.8 896 128 723.2 128 512h64z" p-id="2710"></path></svg>
+
+<div id="beaudar" repo="CtrlAndZ/blog-comments" issue-term="pathname" theme="preferred-color-scheme" input-position="top" comment-order="desc" loading="false" branch="main"></div>
+
+    </div>
+  </div>
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="text"><p>本站由 <a href="https://ctrlandz.github.io/">@liujing</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.9.0" title="v1.9.0">Stellar</a> 主题创建。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    <script type="text/javascript">
+  stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.9.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://fastly.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js',
+    sitesjs: '/js/plugins/sites.js',
+    friendsjs: '/js/plugins/friends.js',
+  };
+
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://fastly.jsdelivr.net/npm/vanilla-lazyload@17.3.1/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@6/swiper-bundle.min.css","js":"https://unpkg.com/swiper@6/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://fastly.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://fastly.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://fastly.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://fastly.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://fastly.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".swiper-slide img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti/umd/heti.min.css","js":"https://unpkg.com/heti/umd/heti-addon.min.js"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+  <script>
+  function loadBeaudar() {
+    const els = document.querySelectorAll("#comments #beaudar");
+    if (els.length === 0) return;
+    els.forEach((el, i) => {
+      try {
+        el.innerHTML = '';
+      } catch (error) {
+        console.log(error);
+      }
+      var script = document.createElement('script');
+      script.src = 'https://beaudar.lipk.org/client.js';
+      script.async = true;
+      for (let key of Object.keys(el.attributes)) {
+        let attr = el.attributes[key];
+        if (['class', 'id'].includes(attr.name) === false) {
+          script.setAttribute(attr.name, attr.value);
+        }
+      }
+      el.appendChild(script);
+    });
+  }
+  window.addEventListener('DOMContentLoaded', (event) => {
+      loadBeaudar();
+  });
+</script>
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>
