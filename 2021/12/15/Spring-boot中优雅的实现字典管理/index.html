@@ -3,12 +3,13 @@
 
 <head>
   <meta name="generator" content="Hexo 6.3.0">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.18.5">
   <meta charset="utf-8">
   
 
   <meta http-equiv='x-dns-prefetch-control' content='on' />
-  <link rel='dns-prefetch' href='https://fastly.jsdelivr.net'>
-  <link rel="preconnect" href="https://fastly.jsdelivr.net" crossorigin>
+  <link rel='dns-prefetch' href='https://gcore.jsdelivr.net'>
+  <link rel="preconnect" href="https://gcore.jsdelivr.net" crossorigin>
   <link rel='dns-prefetch' href='//unpkg.com'>
 
   <meta name="renderer" content="webkit">
@@ -18,14 +19,15 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="theme-color" content="#f8f8f8">
-  <title>Spring boot中优雅的实现字典管理 - 立青同学啊</title>
+  
+  <title>Spring boot中优雅的实现字典管理 - 立青同学</title>
 
   
     <meta name="description" content="利用字典可以统一管理系统中的散落的状态，增强系统的整体性与逻辑性。在开发之前我先参考了网上些许资料，其中主要参考这篇文章：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_40065776&#x2F;article&#x2F;details&#x2F;107403576这篇文章是采取AOP方式对响应信息进行处理，在响应体内增加一个 “变量名” + “Text” 格式的字段来对字典进行解释。个人认为这种方式有一定缺点，其一是代">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spring boot中优雅的实现字典管理">
 <meta property="og:url" content="https://ctrlandz.github.io/2021/12/15/Spring-boot%E4%B8%AD%E4%BC%98%E9%9B%85%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%AD%97%E5%85%B8%E7%AE%A1%E7%90%86/index.html">
-<meta property="og:site_name" content="立青同学啊">
+<meta property="og:site_name" content="立青同学">
 <meta property="og:description" content="利用字典可以统一管理系统中的散落的状态，增强系统的整体性与逻辑性。在开发之前我先参考了网上些许资料，其中主要参考这篇文章：https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_40065776&#x2F;article&#x2F;details&#x2F;107403576这篇文章是采取AOP方式对响应信息进行处理，在响应体内增加一个 “变量名” + “Text” 格式的字段来对字典进行解释。个人认为这种方式有一定缺点，其一是代">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://raw.githubusercontent.com/CtrlAndZ/imgded/main/2022/09/14-16-52-20-22275721-f1403fa32ab18d1d.png">
@@ -56,7 +58,6 @@
   
 </head>
 
-<script src="https://cdn.bootcdn.net/ajax/libs/mermaid/8.13.8/mermaid.min.js"></script>
 <body>
   
 
@@ -67,15 +68,21 @@
     <aside class='l_left' layout='post'>
     
 
+  
 
-<header class="header">
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.4/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="https://q.qlogo.cn/g?b=qq&nk=927552837&s=640" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.4/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">立青同学</div><div class="sub cap">纸上得来终觉浅 绝知此事要躬行</div></a></div>
 
-<div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://fastly.jsdelivr.net/gh/cdn-x/placeholder@1.0.2/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="https://q.qlogo.cn/g?b=qq&nk=927552837&s=640" onerror="javascript:this.classList.add('error');this.src='https://fastly.jsdelivr.net/gh/cdn-x/placeholder@1.0.1/image/2659360.svg';"></a><a class="title" href="/"><div class="main">立青同学啊</div><div class="sub cap">硬盘 —— 能多刻几个字的石头</div></a></div>
-<nav class="menu dis-select"><a class="nav-item active" href="/">文章</a><a class="nav-item" href="/wiki/">项目</a><a class="nav-item" href="/notes/">笔记</a><a class="nav-item" href="/more/">更多</a></nav></header>
+<nav class="menu dis-select"><a class="nav-item active" href="/">文章</a><a class="nav-item" href="/wiki/">项目</a><a class="nav-item" href="/notes/">笔记</a><a class="nav-item" href="/more/">更多</a></nav>
+</header>
+
 
 <div class="widgets">
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/blog/" placeholder="文章搜索"><svg t="1670596976048" class="icon search-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2676" width="200" height="200"><path d="M938.2 832.6L723.8 618.1c-2.5-2.5-5.3-4.4-7.9-6.4 36.2-55.6 57.3-121.8 57.3-193.1C773.3 222.8 614.6 64 418.7 64S64 222.8 64 418.6c0 195.9 158.8 354.6 354.6 354.6 71.3 0 137.5-21.2 193.2-57.4 2 2.7 3.9 5.4 6.3 7.8L832.5 938c14.6 14.6 33.7 21.9 52.8 21.9 19.1 0 38.2-7.3 52.8-21.8 29.2-29.1 29.2-76.4 0.1-105.5M418.7 661.3C284.9 661.3 176 552.4 176 418.6 176 284.9 284.9 176 418.7 176c133.8 0 242.6 108.9 242.6 242.7 0 133.7-108.9 242.6-242.6 242.6" p-id="2677"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
 
-<div class="widget-wrap single" id="toc"><div class="widget-header cap dis-select"><span class="name">本文目录</span></div><div class="widget-body fs14"><div class="doc-tree active"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%BB%BA%E8%A1%A8"><span class="toc-text">1.建表</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E8%A1%A8"><span class="toc-text">主表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%89%AF%E8%A1%A8"><span class="toc-text">副表</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%AD%97%E5%85%B8%E6%B3%A8%E8%A7%A3"><span class="toc-text">2.字典注解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%B5%8B%E8%AF%95%E5%AE%9E%E4%BD%93"><span class="toc-text">3.测试实体</span></a></li></ol></div></div></div>
+
+<widget class="widget-wrapper toc single" id="data-toc"><div class="widget-header cap dis-select"><span class="name">Spring boot中优雅的实现字典管理</span></div><div class="widget-body fs14"><div class="doc-tree active"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%BB%BA%E8%A1%A8"><span class="toc-text">1.建表</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E8%A1%A8"><span class="toc-text">主表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%89%AF%E8%A1%A8"><span class="toc-text">副表</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%AD%97%E5%85%B8%E6%B3%A8%E8%A7%A3"><span class="toc-text">2.字典注解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%B5%8B%E8%AF%95%E5%AE%9E%E4%BD%93"><span class="toc-text">3.测试实体</span></a></li></ol></div></div></widget>
+
+
 
 
 </div>
@@ -90,7 +97,7 @@
 
 <div class="bread-nav fs12"><div id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div><div id="post-meta">发布于&nbsp;<time datetime="2021-12-15T10:35:20.000Z">2021-12-15</time></div></div>
 
-<article class='content md post'>
+<article class='md-text content post'>
 <h1 class="article-title"><span>Spring boot中优雅的实现字典管理</span></h1>
 <blockquote>
 <p>利用字典可以统一管理系统中的散落的状态，增强系统的整体性与逻辑性。<br>在开发之前我先参考了网上些许资料，其中主要参考这篇文章：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_40065776/article/details/107403576">https://blog.csdn.net/qq_40065776/article/details/107403576</a><br>这篇文章是采取AOP方式对响应信息进行处理，在响应体内增加一个 “变量名” + “Text” 格式的字段来对字典进行解释。<br>个人认为这种方式有一定缺点，其一是代码繁琐了些，因为AOP处理部分的代码是新增的，所以会增加处理逻辑，对系统会增加一定的逻辑时长。<br>在该文章评论区一位叫“汤同学”的网友列出了使用自定义序列化的方式来进行处理，个人认为这种思路会更加优雅且相对逻辑时长较短。<br>只不过该同学提供的方式需要在字段上指定字典注解之外，还需要<code>@JsonSerialize(using = DicSerializer.class)</code>来指定字段序列化方式。<br>这篇文章是对“汤同学”方式的补充，可以不写序列化注解。</p>
@@ -129,31 +136,31 @@
 
 </article>
 
-<div class="related-wrap reveal" id="read-next"><section class="header cap theme"><span>接下来阅读</span></section><section class="body fs14"><a id="next" href="/2020/07/10/%E5%9C%A8uniapp-H5%E9%A1%B9%E7%9B%AE%E4%B8%AD%E4%BD%BF%E7%94%A8%E8%85%BE%E8%AE%AF%E5%9C%B0%E5%9B%BEsdk/">在uniapp H5项目中使用腾讯地图sdk<span class="note">较早</span></a><div class="line"></div><a id="prev" href="/2022/10/07/spring-data-elasticsearch%E4%BD%BF%E7%94%A8search-after/">spring-data-elasticsearch使用search_after<span class="note">较新</span></a></section></div>
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2022/10/07/spring-data-elasticsearch%E4%BD%BF%E7%94%A8search-after/">spring-data-elasticsearch使用search_after</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2020/07/10/%E5%9C%A8uniapp-H5%E9%A1%B9%E7%9B%AE%E4%B8%AD%E4%BD%BF%E7%94%A8%E8%85%BE%E8%AE%AF%E5%9C%B0%E5%9B%BEsdk/">在uniapp H5项目中使用腾讯地图sdk</a></div></section></div>
 
 
 
 
 
 
-  <div class='related-wrap md reveal' id="comments">
-    <div class='cmt-title cap theme'>
+  <div class='related-wrap md-text reveal' id="comments">
+    <section class='header cmt-title cap theme'>
       快来参与讨论吧
-    </div>
-    <div class='cmt-body beaudar'>
+    </section>
+    <section class='body cmt-body beaudar'>
       
 
 <svg class="loading" style="vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2709"><path d="M832 512c0-176-144-320-320-320V128c211.2 0 384 172.8 384 384h-64zM192 512c0 176 144 320 320 320v64C300.8 896 128 723.2 128 512h64z" p-id="2710"></path></svg>
 
 <div id="beaudar" repo="CtrlAndZ/blog-comments" issue-term="pathname" theme="preferred-color-scheme" input-position="top" comment-order="desc" loading="false" branch="main"></div>
 
-    </div>
+    </section>
   </div>
 
 
 
       
-<footer class="page-footer reveal fs12"><hr><div class="text"><p>本站由 <a href="https://ctrlandz.github.io/">@liujing</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.9.0" title="v1.9.0">Stellar</a> 主题创建。</p>
+<footer class="page-footer reveal fs12"><hr><div class="text"><p>本站由 <a href="/">@anonymity</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar">Stellar</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
 </div></footer>
 
       <div class='float-panel mobile-only blur' style='display:none'>
@@ -166,7 +173,7 @@
   </div>
   <div class='scripts'>
     <script type="text/javascript">
-  stellar = {
+  const stellar = {
     // 懒加载 css https://github.com/filamentgroup/loadCSS
     loadCSS: (href, before, media, attributes) => {
       var doc = window.document;
@@ -257,7 +264,8 @@
       }
     }
   };
-  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.9.0';
+  stellar.version = '1.18.5';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.18.5';
   stellar.config = {
     date_suffix: {
       just: '刚刚',
@@ -270,29 +278,40 @@
 
   // required plugins (only load if needs)
   stellar.plugins = {
-    jQuery: 'https://fastly.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js',
-    sitesjs: '/js/plugins/sites.js',
-    friendsjs: '/js/plugins/friends.js',
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
   };
 
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
   // optional plugins
   if ('true' == 'true') {
-    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://fastly.jsdelivr.net/npm/vanilla-lazyload@17.3.1/dist/lazyload.min.js","transition":"blur"});
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
   }
   if ('true' == 'true') {
-    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@6/swiper-bundle.min.css","js":"https://unpkg.com/swiper@6/swiper-bundle.min.js"});
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@8.4.5/swiper-bundle.min.css","js":"https://unpkg.com/swiper@8.4.5/swiper-bundle.min.js"});
   }
   if ('' == 'true') {
-    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://fastly.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
   }
   if ('true' == 'true') {
-    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://fastly.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://fastly.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
   }
   if ('true' == 'true') {
-    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://fastly.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://fastly.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".swiper-slide img"});
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".swiper-slide img"});
   }
   if ('false' == 'true') {
-    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti/umd/heti.min.css","js":"https://unpkg.com/heti/umd/heti-addon.min.js"});
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
   }
 </script>
 
